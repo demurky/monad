@@ -1,4 +1,4 @@
-module github.com/koonix/golibs
+module github.com/koonix/x
 
 go 1.24
 
