@@ -9,23 +9,19 @@ import (
 	"path/filepath"
 )
 
-func WriteFileAtomic(path string, data []byte, perm os.FileMode) error {
+func WriteFileAtomic(path string, data []byte, perm os.FileMode) (err error) {
 
 	f, err := OpenFileAtomic(path, os.O_WRONLY, perm)
 	if err != nil {
 		return err
 	}
+	defer f.Close(&err)
 
 	_, err = f.Write(data)
-	if err != nil {
-		os.Remove(f.Name())
-		return fmt.Errorf("could not write to file %q: %w", f.Name(), err)
-	}
-
-	return f.Close()
+	return err
 }
 
-func OpenFileAtomic(path string, flag int, perm os.FileMode) (File, error) {
+func OpenFileAtomic(path string, flag int, perm os.FileMode) (_ File, err error) {
 
 	f, err := CreateTemp(path, os.O_WRONLY, perm)
 	if err != nil {
@@ -34,20 +30,30 @@ func OpenFileAtomic(path string, flag int, perm os.FileMode) (File, error) {
 			filepath.Dir(path), err,
 		)
 	}
+	defer func() {
+		if err != nil {
+			os.Remove(f.Name())
+		}
+	}()
 
-	close := func() error {
+	close := func(e *error) {
+
+		if *e != nil {
+			os.Remove(f.Name())
+		}
+
 		err := f.Close()
 		if err != nil {
-			return fmt.Errorf("could not close file %q: %w", f.Name(), err)
+			*e = fmt.Errorf("could not close temporary file %q: %w", f.Name(), err)
 		}
+
 		err = os.Rename(f.Name(), path)
 		if err != nil {
-			return fmt.Errorf(
-				"could not move file %q to %q: %w",
+			*e = fmt.Errorf(
+				"could not move temporary file %q to %q: %w",
 				f.Name(), path, err,
 			)
 		}
-		return nil
 	}
 
 	return File{
@@ -58,13 +64,9 @@ func OpenFileAtomic(path string, flag int, perm os.FileMode) (File, error) {
 
 type File struct {
 	*os.File
-	close func() error
+	close func(*error)
 }
 
-func (f File) Close() error {
-	return f.close()
-}
-
-func (f File) CloseFile() error {
-	return f.File.Close()
+func (f File) Close(err *error) {
+	f.close(err)
 }

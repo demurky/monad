@@ -14,23 +14,20 @@ func WriteJson(
 	data any,
 	perm os.FileMode,
 	prefix, indent string,
-) error {
+) (
+	err error,
+) {
 
 	f, err := OpenFileAtomic(path, os.O_WRONLY, perm)
 	if err != nil {
 		return err
 	}
+	defer f.Close(&err)
 
 	e := json.NewEncoder(f)
 	e.SetIndent(prefix, indent)
 
-	err = e.Encode(data)
-	if err != nil {
-		os.Remove(f.Name())
-		return fmt.Errorf("could not write json to %q: %w", f.Name(), err)
-	}
-
-	return f.Close()
+	return e.Encode(data)
 }
 
 func ReadJson(path string, dest any) error {
