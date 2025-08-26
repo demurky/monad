@@ -14,13 +14,29 @@ type Buffer struct {
 	writePos int
 }
 
-func New(maxLen int) *Buffer {
-	return &Buffer{
+func New(maxLen int, initialCap ...int) *Buffer {
+	x := &Buffer{
 		maxLen: maxLen,
 	}
+	if len(initialCap) > 0 && initialCap[0] > 0 {
+		x.buf = make([]byte, 0, min(initialCap[0], maxLen))
+	}
+	return x
 }
 
 func (x *Buffer) Write(b []byte) (int, error) {
+	return write(x, b)
+}
+
+func (x *Buffer) WriteString(s string) (int, error) {
+	return write(x, s)
+}
+
+func write[T []byte | string](x *Buffer, b T) (int, error) {
+
+	if len(b) == 0 {
+		return 0, nil
+	}
 
 	if len(b) >= x.maxLen {
 		x.writePos = 0
@@ -45,33 +61,6 @@ func (x *Buffer) Write(b []byte) (int, error) {
 	}
 
 	return len(b), nil
-}
-
-func (x *Buffer) WriteString(s string) (int, error) {
-
-	if len(s) >= x.maxLen {
-		x.writePos = 0
-		x.buf = slices.Grow(x.buf, x.maxLen-len(x.buf))[:x.maxLen]
-		copy(x.buf, s[len(s)-x.maxLen:])
-		return len(s), nil
-	}
-
-	rem := x.maxLen - len(x.buf)
-	if n := min(len(s), rem); n > 0 {
-		x.buf = append(x.buf, s[:n]...)
-		s = s[n:]
-	}
-
-	for len(s) > 0 {
-		n := copy(x.buf[x.writePos:], s)
-		s = s[n:]
-		x.writePos += n
-		if x.writePos == x.maxLen {
-			x.writePos = 0
-		}
-	}
-
-	return len(s), nil
 }
 
 func (x *Buffer) WriteByte(c byte) error {
@@ -140,7 +129,7 @@ func (x *Buffer) Truncate(n int) {
 		}
 		return
 	}
-	newB := New(n)
-	newB.Write(x.Bytes())
-	*x = *newB
+	x2 := New(x.Len(), n)
+	x2.Write(x.Bytes())
+	*x = *x2
 }
