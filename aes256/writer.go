@@ -1,6 +1,8 @@
 // Copyright 2025 the github.com/koonix/x authors.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package aes256 provides streaming symmetric encryption
+// using AES256-CTR + HMAC-SHA256 + Argon2.
 package aes256
 
 import (
