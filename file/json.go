@@ -1,7 +1,7 @@
 // Copyright 2025 the github.com/koonix/x authors.
 // SPDX-License-Identifier: Apache-2.0
 
-package osutil
+package file
 
 import (
 	"encoding/json"
@@ -17,11 +17,13 @@ func WriteJson(
 	err error,
 ) {
 
-	f, err := OpenFileAtomic(path, os.O_WRONLY, perm)
+	f, err := OpenAtomicBufio(path, os.O_WRONLY, perm)
 	if err != nil {
 		return err
 	}
-	defer f.Close(&err)
+	defer func() {
+		f.Close()
+	}()
 
 	e := json.NewEncoder(f)
 	e.SetIndent(prefix, indent)
