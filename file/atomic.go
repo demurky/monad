@@ -57,11 +57,15 @@ func (f *AtomicFile) Close() (err error) {
 func (f *AtomicFile) CloseOnSuccess(errPtr *error) {
 	f.once.Do(func() {
 		if *errPtr != nil {
-			os.Remove(f.File.Name())
+			f.RemoveTemp()
 			return
 		}
 		*errPtr = close(f.File, f.dest)
 	})
+}
+
+func (f *AtomicFile) RemoveTemp() error {
+	return os.Remove(f.File.Name())
 }
 
 func close(f *os.File, dest string) error {

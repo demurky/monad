@@ -51,7 +51,7 @@ func (f *AtomicBufioFile) Close() (retErr error) {
 func (f *AtomicBufioFile) CloseOnSuccess(errPtr *error) {
 	f.once.Do(func() {
 		if *errPtr != nil {
-			os.Remove(f.File.Name())
+			f.RemoveTemp()
 			return
 		}
 		*errPtr = f.w.Flush()
@@ -60,6 +60,10 @@ func (f *AtomicBufioFile) CloseOnSuccess(errPtr *error) {
 		}
 		*errPtr = close(f.File, f.dest)
 	})
+}
+
+func (f *AtomicBufioFile) RemoveTemp() error {
+	return os.Remove(f.File.Name())
 }
 
 func (f *AtomicBufioFile) Write(b []byte) (int, error) {
