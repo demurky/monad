@@ -3,6 +3,10 @@
 
 package ringbuf
 
+// The x:x in the comments are gofmt-compatible spacers.
+//
+// https://github.com/golang/go/issues/54489
+
 import (
 	"slices"
 	"unicode/utf8"
@@ -80,6 +84,8 @@ func (x *Buffer) WriteRune(r rune) (int, error) {
 //
 // Use [Buffer.CloneBytes] if you intend to
 // modify the returned slice.
+//
+//x:x
 func (x *Buffer) Bytes() []byte {
 	if x.writePos == 0 {
 		return x.buf
@@ -92,6 +98,8 @@ func (x *Buffer) Bytes() []byte {
 
 // CloneBytes is similar to [Buffer.Bytes],
 // but the returned slice is a copy of the underlying data.
+//
+//x:x
 func (x *Buffer) CloneBytes() []byte {
 	if x.writePos == 0 {
 		return slices.Clone(x.buf)
@@ -102,6 +110,8 @@ func (x *Buffer) CloneBytes() []byte {
 // String returns the contents of the buffer as a string.
 // If the [Buffer] is a nil pointer,
 // it returns "<nil>".
+//
+//x:x
 func (x *Buffer) String() string {
 	if x == nil {
 		return "<nil>"
