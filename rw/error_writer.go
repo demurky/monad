@@ -7,24 +7,27 @@ import (
 	"io"
 )
 
-// ErrorWriter is returned by [NewErrorWriter].
-type ErrorWriter struct {
+// ErrorCapturingWriter is returned by [NewErrorCapturingWriter].
+type ErrorCapturingWriter struct {
 	W   *AdapterWriter
 	Err error
 }
 
-// NewErrorWriter wraps w so that the first write error encountered
-// is stored in [ErrorWriter.Err] and subsequent writes are no-ops.
+// NewErrorCapturingWriter wraps w so that the first write error encountered
+// is stored in [ErrorCapturingWriter.Err] and subsequent writes are no-ops.
 //
 // It's useful for when many small writes are performed
 // and handling the error on each write is overkill.
-func NewErrorWriter(w io.Writer) *ErrorWriter {
-	return &ErrorWriter{
+//
+// [ErrorCapturingWriter] provides the functionality of [AdapterWriter]
+// as well.
+func NewErrorCapturingWriter(w io.Writer) *ErrorCapturingWriter {
+	return &ErrorCapturingWriter{
 		W: NewAdapterWriter(w),
 	}
 }
 
-func (w *ErrorWriter) Write(b []byte) (int, error) {
+func (w *ErrorCapturingWriter) Write(b []byte) (int, error) {
 	if w.Err != nil {
 		return 0, w.Err
 	}
@@ -35,7 +38,7 @@ func (w *ErrorWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-func (w *ErrorWriter) WriteString(s string) (int, error) {
+func (w *ErrorCapturingWriter) WriteString(s string) (int, error) {
 	if w.Err != nil {
 		return 0, w.Err
 	}
@@ -46,7 +49,7 @@ func (w *ErrorWriter) WriteString(s string) (int, error) {
 	return n, err
 }
 
-func (w *ErrorWriter) WriteByte(c byte) error {
+func (w *ErrorCapturingWriter) WriteByte(c byte) error {
 	if w.Err != nil {
 		return w.Err
 	}
@@ -57,7 +60,7 @@ func (w *ErrorWriter) WriteByte(c byte) error {
 	return err
 }
 
-func (w *ErrorWriter) WriteRune(r rune) (int, error) {
+func (w *ErrorCapturingWriter) WriteRune(r rune) (int, error) {
 	if w.Err != nil {
 		return 0, w.Err
 	}
