@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 )
 
+// AdapterWriter is returned by [NewAdapterWriter].
 type AdapterWriter struct {
 	w io.Writer
 	s io.StringWriter
@@ -15,6 +16,10 @@ type AdapterWriter struct {
 	r runeWriter
 }
 
+// NewAdapterWriter returns a writer that
+// forwards the WriteString, WriteByte and WriteRune method calls
+// if they're implemented by w,
+// otherwise it implements them on top of w.Write().
 func NewAdapterWriter(w io.Writer) *AdapterWriter {
 	if a, ok := w.(*AdapterWriter); ok {
 		return a
