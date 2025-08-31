@@ -7,11 +7,17 @@ import (
 	"io"
 )
 
+// ErrorWriter is returned by [NewErrorWriter].
 type ErrorWriter struct {
 	W   *AdapterWriter
 	Err error
 }
 
+// NewErrorWriter wraps w so that the first write error encountered
+// is stored in [ErrorWriter.Err] and subsequent writes are no-ops.
+//
+// It's useful for when many small writes are performed
+// and handling the error on each write is overkill.
 func NewErrorWriter(w io.Writer) *ErrorWriter {
 	return &ErrorWriter{
 		W: NewAdapterWriter(w),
