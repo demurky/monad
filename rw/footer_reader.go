@@ -7,8 +7,11 @@ import (
 	"io"
 )
 
+// 100 seems to be a good value based on this:
+// https://github.com/golang/go/blob/go1.25.0/src/bufio/bufio.go#L45
 const maxConsecutiveEmptyReads = 100
 
+// FooterReader is returned by [NewFooterReader].
 type FooterReader struct {
 	r          io.Reader
 	footer     []byte
@@ -17,14 +20,15 @@ type FooterReader struct {
 }
 
 // NewFooterReader returns a reader that reads data from r,
-// excluding the last len(footer) bytes before EOF,
+// excluding the last len(footer) bytes of the stream,
 // which can be retrieved via [FooterReader.Footer].
 //
 // Optionally, an extra buffer with the same length as footer
 // can be provided to prevent allocation for the internal operations.
 //
 // [FooterReader.Footer] always returns the latest read bytes,
-// regardless of errors or whether EOF has been achieved.
+// regardless of errors, whether EOF has been achieved,
+// or whether len(footer) bytes have been read from r yet.
 //
 // [FooterReader.Read] is safe to call again
 // after errors (including EOF).
