@@ -5,6 +5,8 @@ package enc
 
 import (
 	"encoding/base64"
+
+	"github.com/koonix/x/internal/noalloc"
 )
 
 type Encoding interface {
@@ -17,11 +19,11 @@ type Encoding interface {
 func Encode[Dst, Src ~[]byte | ~string](enc Encoding, src Src) Dst {
 	dst := make([]byte, enc.EncodedLen(len(src)))
 	enc.Encode(dst, []byte(src))
-	return Dst(dst)
+	return noalloc.FromBytes[Dst](dst)
 }
 
 func Decode[Dst, Src ~[]byte | ~string](enc Encoding, src Src) (Dst, error) {
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(src)))
 	_, err := enc.Decode(dst, []byte(src))
-	return Dst(dst), err
+	return noalloc.FromBytes[Dst](dst), err
 }
