@@ -5,6 +5,7 @@ go 1.24
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/google/go-cmp v0.7.0
+	go.yaml.in/yaml/v4 v4.0.0-rc.2
 	golang.org/x/crypto v0.41.0
 	golang.org/x/tools v0.36.0
 )
