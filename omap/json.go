@@ -1,7 +1,7 @@
 // Copyright 2025 the github.com/koonix/x authors.
 // SPDX-License-Identifier: Apache-2.0
 
-package om
+package omap
 
 import (
 	"bytes"

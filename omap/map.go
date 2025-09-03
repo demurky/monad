@@ -1,8 +1,8 @@
 // Copyright 2025 the github.com/koonix/x authors.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package om provides an ordered map implementation.
-package om
+// Package omap provides an ordered map implementation.
+package omap
 
 import (
 	"iter"
