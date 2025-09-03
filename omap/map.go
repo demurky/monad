@@ -5,8 +5,10 @@
 package omap
 
 import (
+	"fmt"
 	"iter"
 	"slices"
+	"strings"
 )
 
 // Map is an ordered map.
@@ -31,12 +33,6 @@ func New[K comparable, V any](size ...int) Map[K, V] {
 		m.s = make([]tuple[K, V], 0, size[0])
 	}
 	return m
-}
-
-func (m *Map[K, V]) init() {
-	if m._map == nil {
-		m._map = new(_map[K, V])
-	}
 }
 
 func (m Map[K, V]) Get(key K) (val V, has bool) {
@@ -103,6 +99,26 @@ func (m Map[K, V]) Values() iter.Seq[V] {
 				return
 			}
 		}
+	}
+}
+
+func (m Map[K, V]) String() string {
+	var sb strings.Builder
+	sb.WriteString("omap[")
+	f := "%v:%v"
+	for i, t := range m.s {
+		if i == 1 {
+			f = " " + f
+		}
+		fmt.Fprintf(&sb, f, t.key, t.val)
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
+func (m *Map[K, V]) init() {
+	if m._map == nil {
+		m._map = new(_map[K, V])
 	}
 }
 
