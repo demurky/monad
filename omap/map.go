@@ -35,6 +35,10 @@ func New[K comparable, V any](size ...int) Map[K, V] {
 	return m
 }
 
+func Init[K comparable, V any](m *Map[K, V], size ...int) {
+	*m = New[K, V](size...)
+}
+
 func (m Map[K, V]) Get(key K) (val V, has bool) {
 	i := m.index(key)
 	if i == -1 {
