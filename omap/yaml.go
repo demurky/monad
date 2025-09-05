@@ -15,6 +15,10 @@ func (m Map[K, V]) MarshalYAML() (any, error) {
 		Kind: yaml.MappingNode,
 	}
 
+	if m.IsNil() {
+		return node, nil
+	}
+
 	for _, t := range m.s {
 
 		key := &yaml.Node{}

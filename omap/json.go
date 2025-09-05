@@ -14,6 +14,10 @@ import (
 
 func (m Map[K, V]) MarshalJSON() ([]byte, error) {
 
+	if m.IsNil() {
+		return []byte("null"), nil
+	}
+
 	b := new(bytes.Buffer)
 	b.WriteByte('{')
 
