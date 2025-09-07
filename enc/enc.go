@@ -24,6 +24,6 @@ func Encode[Out, In ~string | ~[]byte](enc Encoding, src In) Out {
 
 func Decode[Out, In ~string | ~[]byte](enc Encoding, src In) (Out, error) {
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(src)))
-	_, err := enc.Decode(dst, []byte(src))
-	return noalloc.ConvertBytes[Out](dst), err
+	n, err := enc.Decode(dst, []byte(src))
+	return noalloc.ConvertBytes[Out](dst[:n]), err
 }
