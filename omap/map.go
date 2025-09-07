@@ -36,7 +36,7 @@ func New[K comparable, V any](size ...int) Map[K, V] {
 }
 
 func Init[K comparable, V any](m *Map[K, V], size ...int) {
-	if !m.IsNil() {
+	if m.IsNil() {
 		*m = New[K, V](size...)
 	}
 }
