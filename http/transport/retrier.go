@@ -15,6 +15,10 @@ import (
 
 // TODO: Use the bufpool package to store the body once it's ready.
 
+// TODO: Currently this transport retries the request upon ANY error
+// received from the upstream transport.
+// Add a mechanism for allowing some errors/conditions to make the retrier give up.
+
 type Retrier struct {
 	MaxTries   int
 	RetryDelay time.Duration
