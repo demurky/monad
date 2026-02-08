@@ -1,7 +1,7 @@
 // Copyright 2025 the toolbox authors.
 // SPDX-License-Identifier: Apache-2.0
 
-package symmetric
+package streamcrypt
 
 import (
 	"crypto/cipher"
@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/layer8co/toolbox/moreio"
+	"github.com/layer8co/toolbox/io/moreio"
 	"golang.org/x/crypto/argon2"
 )
 

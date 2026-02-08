@@ -1,7 +1,7 @@
 // Copyright 2025 the toolbox authors.
 // SPDX-License-Identifier: Apache-2.0
 
-package symmetric_test
+package streamcrypt_test
 
 import (
 	"bytes"
@@ -9,17 +9,17 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	sym "github.com/layer8co/toolbox/crypto/symmetric"
+	sc "github.com/layer8co/toolbox/crypto/streamcrypt"
 	"github.com/layer8co/toolbox/must"
 )
 
-func TestSymmetric(t *testing.T) {
+func TestStreamCrypt(t *testing.T) {
 
 	tests := []struct {
-		mode sym.Mode
+		mode sc.Mode
 	}{
-		{mode: sym.ModeXChaCha20},
-		{mode: sym.ModeAES256CTR},
+		{mode: sc.ModeXChaCha20},
+		{mode: sc.ModeAES256CTR},
 	}
 
 	input := []byte("hello world")
@@ -33,8 +33,8 @@ func TestSymmetric(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.mode.String(), func(t *testing.T) {
 
-			ciphertext := sym.Encrypt(input, password, sym.WithMode(test.mode))
-			output, err := sym.Decrypt(ciphertext, passFunc)
+			ciphertext := sc.Encrypt(input, password, sc.WithMode(test.mode))
+			output, err := sc.Decrypt(ciphertext, passFunc)
 
 			if err != nil {
 				t.Fatalf("could not decrypt: %s", err)
@@ -50,10 +50,10 @@ func TestSymmetric(t *testing.T) {
 func BenchmarkWrite(b *testing.B) {
 
 	benches := []struct {
-		mode sym.Mode
+		mode sc.Mode
 	}{
-		{mode: sym.ModeXChaCha20},
-		{mode: sym.ModeAES256CTR},
+		{mode: sc.ModeXChaCha20},
+		{mode: sc.ModeAES256CTR},
 	}
 
 	password := []byte("mypass123")
@@ -62,7 +62,7 @@ func BenchmarkWrite(b *testing.B) {
 	for _, bench := range benches {
 		b.Run(bench.mode.String(), func(b *testing.B) {
 
-			w := sym.NewEncryptor(io.Discard, password, sym.WithMode(bench.mode))
+			w := sc.NewEncryptor(io.Discard, password, sc.WithMode(bench.mode))
 
 			b.ResetTimer()
 
@@ -76,10 +76,10 @@ func BenchmarkWrite(b *testing.B) {
 func BenchmarkRead(b *testing.B) {
 
 	benches := []struct {
-		mode sym.Mode
+		mode sc.Mode
 	}{
-		{mode: sym.ModeXChaCha20},
-		{mode: sym.ModeAES256CTR},
+		{mode: sc.ModeXChaCha20},
+		{mode: sc.ModeAES256CTR},
 	}
 
 	passwordString := "mypass123"
@@ -93,14 +93,14 @@ func BenchmarkRead(b *testing.B) {
 
 			ciphertextBuf := new(bytes.Buffer)
 
-			w := sym.NewEncryptor(ciphertextBuf, password, sym.WithMode(bench.mode))
+			w := sc.NewEncryptor(ciphertextBuf, password, sc.WithMode(bench.mode))
 			w.Write([]byte("hello world"))
 
 			rr := &repeatReader{
 				b: ciphertextBuf.Bytes(),
 			}
 
-			r := sym.NewDecryptor(rr, passFunc)
+			r := sc.NewDecryptor(rr, passFunc)
 			readBuf := make([]byte, ciphertextBuf.Len())
 
 			b.ResetTimer()
@@ -117,10 +117,10 @@ var global []byte
 func BenchmarkEncrypt(b *testing.B) {
 
 	benches := []struct {
-		mode sym.Mode
+		mode sc.Mode
 	}{
-		{mode: sym.ModeXChaCha20},
-		{mode: sym.ModeAES256CTR},
+		{mode: sc.ModeXChaCha20},
+		{mode: sc.ModeAES256CTR},
 	}
 
 	password := []byte("mypass123")
@@ -130,7 +130,7 @@ func BenchmarkEncrypt(b *testing.B) {
 		b.Run(bench.mode.String(), func(b *testing.B) {
 
 			for b.Loop() {
-				global = sym.Encrypt(plaintext, password, sym.WithMode(bench.mode))
+				global = sc.Encrypt(plaintext, password, sc.WithMode(bench.mode))
 			}
 
 			b.ReportMetric(
@@ -144,10 +144,10 @@ func BenchmarkEncrypt(b *testing.B) {
 func BenchmarkDecrypt(b *testing.B) {
 
 	benches := []struct {
-		mode sym.Mode
+		mode sc.Mode
 	}{
-		{mode: sym.ModeXChaCha20},
-		{mode: sym.ModeAES256CTR},
+		{mode: sc.ModeXChaCha20},
+		{mode: sc.ModeAES256CTR},
 	}
 
 	plaintext := []byte("hello world")
@@ -163,12 +163,12 @@ func BenchmarkDecrypt(b *testing.B) {
 	for _, bench := range benches {
 		b.Run(bench.mode.String(), func(b *testing.B) {
 
-			ciphertext := sym.Encrypt(plaintext, password, sym.WithMode(bench.mode))
+			ciphertext := sc.Encrypt(plaintext, password, sc.WithMode(bench.mode))
 
 			b.ResetTimer()
 
 			for b.Loop() {
-				global, err = sym.Decrypt(ciphertext, passFunc)
+				global, err = sc.Decrypt(ciphertext, passFunc)
 				if err != nil {
 					b.Fatalf("could not decrypt: %s", err)
 				}
